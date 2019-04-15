@@ -6,10 +6,10 @@ import android.content.Context;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.database.SQLException;
-import android.database.sqlite.SQLiteDatabase;
-import android.database.sqlite.SQLiteDatabase.CursorFactory;
-import android.database.sqlite.SQLiteException;
-import android.database.sqlite.SQLiteOpenHelper;
+import net.sqlcipher.database.SQLiteDatabase;
+import net.sqlcipher.database.SQLiteDatabase.CursorFactory;
+import net.sqlcipher.database.SQLiteException;
+import net.sqlcipher.database.SQLiteOpenHelper;
 import android.os.Build;
 import android.os.Environment;
 import android.support.v4.content.ContextCompat;
@@ -50,6 +50,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     private SQLiteDatabase database;
     private Context mContext;
 
+    public static String DB_ENCRYPTION_KEY = "passwordChangeMe";
+
     private HashMap<String, String> renamed_columns = new HashMap<>();
 
     public DatabaseHelper(Context context, String database_name, CursorFactory cursor_factory, int database_version, String[] database_tables, String[] table_fields) {
@@ -60,6 +62,13 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         tableFields = table_fields;
         newVersion = database_version;
         cursorFactory = cursor_factory;
+
+        // Load sqlcipher external lib.
+        SQLiteDatabase.loadLibs(context);
+
+        if (DB_ENCRYPTION_KEY.equals("passwordChangeMe")) {
+            throw new RuntimeException("DatabaseHelper#DB_ENCRYPTION_KEY must be set!");
+        }
     }
 
     public void setRenamedColumns(HashMap<String, String> renamed) {
@@ -170,7 +179,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return columns;
     }
 
-    @Override
+    // @Override
     public synchronized SQLiteDatabase getWritableDatabase() {
         try {
             if (database != null) {
@@ -204,7 +213,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         }
     }
 
-    @Override
+    // @Override
     public synchronized SQLiteDatabase getReadableDatabase() {
         try {
             if (database != null) {
@@ -248,7 +257,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 aware_folder.mkdirs();
             }
 
-            database = SQLiteDatabase.openOrCreateDatabase(new File(aware_folder, this.databaseName).getPath(), this.cursorFactory);
+            database = SQLiteDatabase.openOrCreateDatabase(new File(aware_folder, this.databaseName).getPath(), DB_ENCRYPTION_KEY, this.cursorFactory);
             return database;
         } catch (SQLiteException e) {
             return null;

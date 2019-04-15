@@ -8,8 +8,8 @@ import android.content.Context;
 import android.content.UriMatcher;
 import android.database.Cursor;
 import android.database.SQLException;
-import android.database.sqlite.SQLiteDatabase;
-import android.database.sqlite.SQLiteQueryBuilder;
+import net.sqlcipher.database.SQLiteDatabase;
+import net.sqlcipher.database.SQLiteQueryBuilder;
 import android.net.Uri;
 import android.provider.BaseColumns;
 import android.util.Log;
@@ -342,7 +342,7 @@ public class Proximity_Provider extends ContentProvider {
         initialiseDatabase();
 
         SQLiteQueryBuilder qb = new SQLiteQueryBuilder();
-        qb.setStrict(true);
+        // qb.setStrict(true);
         switch (sUriMatcher.match(uri)) {
             case SENSOR_DEV:
                 qb.setTables(DATABASE_TABLES[0]);
